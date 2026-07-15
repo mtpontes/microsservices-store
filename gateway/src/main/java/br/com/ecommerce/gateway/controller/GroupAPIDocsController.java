@@ -19,14 +19,17 @@ import io.swagger.v3.oas.annotations.Hidden;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 @Hidden
 @RestController
-@AllArgsConstructor
 public class GroupAPIDocsController {
 
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(GroupAPIDocsController.class);
     private static final Set<String> SERVICES = Set.of("gateway", "payment-ms");
     private final DiscoveryClient discoveryClient;
+
+    public GroupAPIDocsController(DiscoveryClient discoveryClient) {
+        this.discoveryClient = discoveryClient;
+    }
 
 
     @GetMapping("/v3/api-docs/swagger-config")

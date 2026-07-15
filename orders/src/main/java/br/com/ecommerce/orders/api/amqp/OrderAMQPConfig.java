@@ -55,7 +55,7 @@ public class OrderAMQPConfig {
 		
 		@Bean
 		Queue queueProductsStock() {
-			return QueueBuilder.nonDurable("products.stock-orders").build();
+			return QueueBuilder.durable("products.stock-orders").build();
 		}
 		
 		@Bean
@@ -68,7 +68,7 @@ public class OrderAMQPConfig {
 		
 		@Bean
 		Queue queuePayments() {
-			return QueueBuilder.nonDurable("payments.details-order").build();
+			return QueueBuilder.durable("payments.details-order").build();
 		}
 
 		@Bean
@@ -87,7 +87,7 @@ public class OrderAMQPConfig {
 
 		@Bean
 		Queue queueCancelOrder() {
-			return QueueBuilder.nonDurable("payments.cancel-order").build();
+			return QueueBuilder.durable("payments.cancel-order").build();
 		}
 
 		@Bean
@@ -109,7 +109,7 @@ public class OrderAMQPConfig {
 
 		@Bean
 		Queue queueStatusPayment() {
-			return QueueBuilder.nonDurable("orders.status-payment").build();
+			return QueueBuilder.durable("orders.status-payment").build();
 		}
 
 		@Bean

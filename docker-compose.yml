@@ -111,6 +111,27 @@ services:
       eureka-service:
         condition: service_healthy
 
+  auth-service:
+    build:
+      context: ./auth
+      dockerfile: Dockerfile
+    image: auth-service
+    env_file: 
+      - ./repo/env/persistence-mysql.env
+      - ./repo/env/secret.env
+    environment:
+      DB_HOST: mysql
+      EUREKA_HOST: eureka-service
+    volumes:
+      - ./repo/logs/auth:/application/auth-log
+    networks:
+      - microservices-network
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka-service:
+        condition: service_healthy
+
   accounts-service:
     build:
       context: ./accounts
@@ -141,7 +162,6 @@ services:
     image: products-service
     env_file: 
       - ./repo/env/persistence-mysql.env
-      - ./repo/env/secret.env
       - ./repo/env/rabbitmq.env
       - ./repo/env/app-rabbitmq.env
       - ./repo/env/springdoc.env
@@ -172,7 +192,6 @@ services:
     image: cart-service
     env_file: 
       - ./repo/env/persistence-mongo.env
-      - ./repo/env/secret.env
       - ./repo/env/rabbitmq.env
       - ./repo/env/springdoc.env
     environment:
@@ -196,7 +215,6 @@ services:
     image: orders-service
     env_file: 
       - ./repo/env/persistence-mongo.env
-      - ./repo/env/secret.env
       - ./repo/env/rabbitmq.env
       - ./repo/env/app-rabbitmq.env
       - ./repo/env/springdoc.env
@@ -224,7 +242,6 @@ services:
     image: payments-service
     env_file: 
       - ./repo/env/persistence-mysql.env
-      - ./repo/env/secret.env
       - ./repo/env/rabbitmq.env
       - ./repo/env/app-rabbitmq.env
       - ./repo/env/springdoc.env

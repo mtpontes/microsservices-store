@@ -53,7 +53,7 @@ public class ProductsAMQPConfig {
 
 		@Bean
 		Queue queueStockProducts() {
-			return QueueBuilder.nonDurable("products.stock-orders").build();
+			return QueueBuilder.durable("products.stock-orders").build();
 		}
 		
 		@Bean

@@ -15,7 +15,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import br.com.ecommerce.common.filter.SecurityFilter;
-import br.com.ecommerce.common.jwt.TokenDecoderService;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -26,18 +25,10 @@ public class SecurityConfigs {
     @Value("${api.security.gateway.name}") 
     private String gatewayName;
 
-    @Value("${api.security.token.secret}")
-    private String secret;
-
-
-    @Bean
-    public TokenDecoderService tokenService() {
-        return new TokenDecoderService(secret);
-    }
 
     @Bean
     public OncePerRequestFilter securityFilter() {
-        return new SecurityFilter(this.tokenService());
+        return new SecurityFilter();
     }
 
     @Bean

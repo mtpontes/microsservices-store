@@ -52,7 +52,7 @@ public class PaymentAMQPConfig {
 
 		@Bean
 		Queue queuePayments() {
-			return QueueBuilder.nonDurable("payments.details-order").build();
+			return QueueBuilder.durable("payments.details-order").build();
 		}
 
 		@Bean
@@ -71,7 +71,7 @@ public class PaymentAMQPConfig {
 
 		@Bean
 		Queue queueCancelOrder() {
-			return QueueBuilder.nonDurable("payments.cancel-order").build();
+			return QueueBuilder.durable("payments.cancel-order").build();
 		}
 
 		@Bean
