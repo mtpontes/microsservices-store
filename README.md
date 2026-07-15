@@ -1,16 +1,14 @@
 # Microsservices Store
 
-## 🔎 About the project
-
 E-Commerce Store is a REST API for an e-commerce store, based on microservices architecture, with both operations performed by the customer and operations performed by administrators.
 
 This is an old project that I created at the beginning of the year, and this repository is intended for a complete refactoring of the project.
 
-## ⚙️ System overview
+## System overview
 ![application-schema](/repo/readme/application.svg)
 
 <details>
-  <summary><h2>📋 Details</h2></summary>
+  <summary><h2>Details</h2></summary>
 
 ### Eureka
 - This is the discovery service. It acts as a hub where all microservices connect, allowing them to know each other.
@@ -45,7 +43,7 @@ This is an old project that I created at the beginning of the year, and this rep
 
 
 <details>
-  <summary><h2>🛠️ Tecnologies</h2></summary>
+  <summary><h2>Tecnologies</h2></summary>
 
 - [Spring Boot]()
 - [MongoDB](https://www.mongodb.com)
@@ -62,7 +60,7 @@ This is an old project that I created at the beginning of the year, and this rep
 
 
 <details>
-  <summary><h2>📦 Documentation</h2></summary>
+  <summary><h2>Documentation</h2></summary>
 
 ### Swagger UI
 
@@ -70,8 +68,7 @@ The application also has detailed documentation made with OpenAPI and Swagger UI
 
 To access it, run the containers and access the [documentation entry point](http://localhost:9092/swagger-ui/index.html) (Gateway). The documentation can be accessed centrally through the Gateway and also through the individual API itself (accounts, products, orders, cart, payments).
 
-> **Notes:**
->
+> **Note:**
 > - Endpoints with the prefix "Admin" require you to be logged in as a user with ADMIN or EMPLOYEE permission
 > - Endpoints with the prefix "Client" only work with users with CLIENT permission
 > - Endpoints with "Internal" prefix do not accept external calls
@@ -228,7 +225,7 @@ Content-Type: application/json
 </details>
 
 <details>
-  <summary><h2>🚀 How to run</h2></summary>
+  <summary><h2>How to run</h2></summary>
 
 ### Deploy with Docker
 This docker-compose file is for demonstration purposes, facilitating deployment in any environment.
@@ -266,7 +263,7 @@ After ensuring the correct line endings, raise the containers
 
 
 <details>
-  <summary><h2>🔧 Adjustments and improvements</h2></summary>
+  <summary><h2>Adjustments and improvements</h2></summary>
 The project is still under development, is currently using development settings. The next updates will focus on the following tasks:
 
 
@@ -300,6 +297,6 @@ The project is still under development, is currently using development settings.
 
 </details>
 
-# 🤝 Credits
+# Credits
 
 Special thanks to [@MadeiraAlexandre](https://github.com/MadeiraAlexandre) for helping me with several suggestions, such as creating the concept of system services, and with the relationships of some entities.
