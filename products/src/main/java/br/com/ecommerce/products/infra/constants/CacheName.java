@@ -1,4 +1,4 @@
-package br.com.ecommerce.products.infra.config;
+package br.com.ecommerce.products.infra.constants;
 
 public class CacheName {
     public static final String DEPARTMENTS = "getDepartment";

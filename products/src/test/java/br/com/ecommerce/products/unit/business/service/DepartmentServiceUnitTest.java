@@ -71,9 +71,6 @@ class DepartmentServiceUnitTest {
         when(repository.findById(any()))
             .thenReturn(Optional.of(target));
 
-        when(repository.save(eq(target)))
-            .thenReturn(target);
-
         var response = new SimpleDataDepartmentDTO(1L, newName);
         when(departmentMapper.toSimpleDataDepartmentDTO(eq(target)))
             .thenReturn(response);
@@ -86,7 +83,7 @@ class DepartmentServiceUnitTest {
         verify(uniqueNameDepartmentValidator)
             .validate(eq(requestBody.getName()));
 
-        verify(repository).save(departmentCaptor.capture());
+        verify(departmentMapper).toSimpleDataDepartmentDTO(departmentCaptor.capture());
         Department updated = departmentCaptor.getValue();
         assertEquals(requestBody.getName().toUpperCase(), updated.getName());
     }

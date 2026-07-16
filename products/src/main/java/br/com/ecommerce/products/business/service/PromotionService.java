@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 
 import br.com.ecommerce.products.api.dto.product.DataProductDTO;
 import br.com.ecommerce.products.api.mapper.factory.ProductDTOFactory;
-import br.com.ecommerce.products.infra.config.CacheName;
+import br.com.ecommerce.products.infra.constants.CacheName;
 import br.com.ecommerce.products.infra.entity.product.Product;
 import br.com.ecommerce.products.infra.repository.ProductRepository;
 import br.com.ecommerce.products.infra.scheduling.scheduler.PriceJobScheduler;

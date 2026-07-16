@@ -11,7 +11,7 @@ import br.com.ecommerce.products.api.dto.category.SimpleDataCategoryDTO;
 import br.com.ecommerce.products.api.dto.category.UpdateCategoryDTO;
 import br.com.ecommerce.products.api.mapper.CategoryMapper;
 import br.com.ecommerce.products.business.validator.UniqueNameCategoryValidator;
-import br.com.ecommerce.products.infra.config.CacheName;
+import br.com.ecommerce.products.infra.constants.CacheName;
 import br.com.ecommerce.products.infra.entity.category.Category;
 import br.com.ecommerce.products.infra.exception.exceptions.CategoryNotFoundException;
 import br.com.ecommerce.products.infra.exception.exceptions.DepartmentNotFoundException;
@@ -74,7 +74,7 @@ public class CategoryService {
         return categoryRepository.findById(id)
             .map(category -> {
                 category.update(dto.getName());
-                return categoryRepository.save(category);
+                return category;
             })
             .map(categoryMapper::toSimpleDataCategoryDTO)
             .orElseThrow(CategoryNotFoundException::new);

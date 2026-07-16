@@ -34,7 +34,7 @@ import br.com.ecommerce.products.api.mapper.ProductMapper;
 import br.com.ecommerce.products.api.mapper.StockMapper;
 import br.com.ecommerce.products.api.mapper.factory.ProductDTOFactory;
 import br.com.ecommerce.products.business.validator.UniqueNameProductValidator;
-import br.com.ecommerce.products.infra.config.CacheName;
+import br.com.ecommerce.products.infra.constants.CacheName;
 import br.com.ecommerce.products.infra.entity.category.Category;
 import br.com.ecommerce.products.infra.entity.manufacturer.Manufacturer;
 import br.com.ecommerce.products.infra.entity.product.Price;
@@ -132,7 +132,7 @@ public class ProductService {
 		return productRepository.findById(id)
 			.map(product -> {
 				product.update(dto.getName(), dto.getDescription(), dto.getSpecs());
-				return productRepository.save(product);
+				return product;
 			})
 			.map(productMapper::toProductUpdateResponseDTO)
 			.orElseThrow(ProductNotFoundException::new);
@@ -145,7 +145,7 @@ public class ProductService {
 			.map(product -> {
 				Price newPrice = priceMapper.toPrice(dto);
 				product.updatePrice(newPrice);
-				return productRepository.save(product);
+				return product;
 			})
 			.map(this::createUpdateProductPriceResponseDTO)
 			.orElseThrow(ProductNotFoundException::new);
@@ -157,7 +157,7 @@ public class ProductService {
 		return productRepository.findById(id)
 			.map(product -> {
 				product.getPrice().setPromotionalPrice(dto.getPrice());
-				return productRepository.save(product);
+				return product;
 			})
 			.map(this::createUpdateProductPriceResponseDTO)
 			.orElseThrow(ProductNotFoundException::new);
@@ -170,7 +170,6 @@ public class ProductService {
 			.map(product -> {
 				product.getPrice().setEndPromotion(endPromotion);
 				product.startPromotion();
-				productRepository.save(product);
 
 				priceScheduler.createSchedulerForPromotionEnd(product.getId(), endPromotion);
 				promotionService.createCacheForProductOnPromotion(product);
@@ -187,7 +186,6 @@ public class ProductService {
 			.map(product -> {
 				product.getPrice().setStartPromotion(data.getStart());
 				product.getPrice().setEndPromotion(data.getEnd());
-				product = productRepository.save(product);
 
 				priceScheduler.createSchedulerForPromotionStart(product.getId(), data.getStart(), data.getEnd());
 				return product;
@@ -202,7 +200,6 @@ public class ProductService {
 		return productRepository.findById(id)
 			.map(product -> {
 				product.endPromotion();
-				product = productRepository.save(product);
 				priceScheduler.removeRedundantSchedulePromotion(product.getId(), PromotionOperation.END_PROMOTION);
 				return product;
 			})
@@ -248,8 +245,6 @@ public class ProductService {
 		manufacturer.addProduct(product);
 
 		productRepository.save(product);
-		categoryRepository.save(category);
-		manufacturerRepository.save(manufacturer);
 		
 		return dtoFactory.createDataProductDTO(product);
 	}
@@ -265,33 +260,30 @@ public class ProductService {
 	@Transactional
 	public UpdateProductImagesResponseDTO addMainImage(Long productId, String imageLink) {
 		return productRepository.findById(productId)
-			.stream()
-			.peek(product -> product.getImages().setMainImage(imageLink))
-			.map(productRepository::save)
-			.map(productMapper::toUpdateProductImagesResponseDTO)
-			.findFirst()
+			.map(product -> {
+				product.getImages().setMainImage(imageLink);
+				return productMapper.toUpdateProductImagesResponseDTO(product);
+			})
 			.orElseThrow(ProductNotFoundException::new);
     }
 
 	@Transactional
 	public UpdateProductImagesResponseDTO addImages(Long productId, Set<String> newImages) {
 		return productRepository.findById(productId)
-			.stream()
-			.peek(product -> product.getImages().addAdditionalImages(newImages))
-			.map(productRepository::save)
-			.map(productMapper::toUpdateProductImagesResponseDTO)
-			.findFirst()
+			.map(product -> {
+				product.getImages().addAdditionalImages(newImages);
+				return productMapper.toUpdateProductImagesResponseDTO(product);
+			})
 			.orElseThrow(ProductNotFoundException::new);
     }
 
 	@Transactional
 	public UpdateProductImagesResponseDTO removeImages(Long productId, Set<String> newImages) {
 		return productRepository.findById(productId)
-			.stream()
-			.peek(product -> product.getImages().remove(newImages))
-			.map(productRepository::save)
-			.map(productMapper::toUpdateProductImagesResponseDTO)
-			.findFirst()
+			.map(product -> {
+				product.getImages().remove(newImages);
+				return productMapper.toUpdateProductImagesResponseDTO(product);
+			})
 			.orElseThrow(ProductNotFoundException::new);
     }
 

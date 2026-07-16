@@ -16,7 +16,7 @@ import br.com.ecommerce.products.api.dto.manufacturer.UpdateManufacturerDTO;
 import br.com.ecommerce.products.api.mapper.AddressMapper;
 import br.com.ecommerce.products.api.mapper.ManufacturerMapper;
 import br.com.ecommerce.products.business.validator.UniqueNameManufacturerValidator;
-import br.com.ecommerce.products.infra.config.CacheName;
+import br.com.ecommerce.products.infra.constants.CacheName;
 import br.com.ecommerce.products.infra.entity.manufacturer.Address;
 import br.com.ecommerce.products.infra.entity.manufacturer.Manufacturer;
 import br.com.ecommerce.products.infra.entity.manufacturer.Phone;
@@ -115,7 +115,7 @@ public class ManufacturerService {
 					dto.getEmail(),
 					dto.getContactPerson(),
 					address);
-				return repository.save(manufacturer);
+				return manufacturer;
 			})
 			.map(manufacturer -> {
 				DataAddressDTO address = addressMapper.toDataAddressDTO(manufacturer.getAddress());

@@ -2,6 +2,7 @@ package br.com.ecommerce.products.infra.exception.handlers;
 
 import static org.springframework.http.HttpStatus.*;
 
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -79,7 +80,7 @@ public class GlobalExceptionHandler {
 
 	@ExceptionHandler(MethodArgumentNotValidException.class)
 	public ResponseEntity<ResponseError> handleError400(MethodArgumentNotValidException ex) {
-		var fields = ex.getFieldErrors().stream()
+		Map<String, String> fields = ex.getFieldErrors().stream()
 				.collect(Collectors.toMap(
 						f -> f.getField().toString(), f -> f.getDefaultMessage()));
 
@@ -166,7 +167,7 @@ public class GlobalExceptionHandler {
 
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<ResponseErrorWithoutMessage> handleError500(Exception ex) {
-		ex.printStackTrace();
+		log.error("Erro interno do servidor", ex);
 		return ResponseEntity
 				.internalServerError()
 				.body(new ResponseErrorWithoutMessage(

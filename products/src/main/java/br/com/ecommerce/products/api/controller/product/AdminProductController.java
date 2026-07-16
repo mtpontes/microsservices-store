@@ -1,5 +1,6 @@
 package br.com.ecommerce.products.api.controller.product;
 
+import java.net.URI;
 import java.util.Set;
 
 import org.springframework.http.ResponseEntity;
@@ -48,7 +49,7 @@ public class AdminProductController implements IAdminProductController {
 		UriComponentsBuilder uriBuilder
 	) {
 		DataProductDTO responseBody = service.createProduct(dto);
-		var uri = uriBuilder
+		URI uri = uriBuilder
 			.path("/products/{productId}")
 			.buildAndExpand(responseBody.getId())
 			.toUri();

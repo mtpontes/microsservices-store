@@ -110,9 +110,6 @@ class ProductServiceUnitTest {
         when(repository.findById(any()))
             .thenReturn(Optional.of(target));
 
-        when(repository.save(any()))
-            .thenReturn(target);
-
         UpdateProductResponseDTO response = new UpdateProductResponseDTO(
             null, requestBody.getName(), null, null);
         when(productMapper.toProductUpdateResponseDTO(eq(target)))
@@ -163,9 +160,6 @@ class ProductServiceUnitTest {
         when(priceMapper.toPrice(eq(requestBody)))
             .thenReturn(newPrice);
 
-        when(repository.save(eq(product)))
-            .thenReturn(product);
-
         when(productMapper.toUpdateProductPriceResponseDTO(eq(product), any()))
             .thenReturn(new UpdateProductPriceResponseDTO());
 
@@ -198,9 +192,6 @@ class ProductServiceUnitTest {
         
         UpdatePromotionalPriceDTO requestBody = new UpdatePromotionalPriceDTO(BigDecimal.valueOf(price.getCurrentPrice().intValue() / 2));
         
-        when(repository.save(eq(product)))
-            .thenReturn(product);
-        
         UpdateProductPriceResponseDTO response = new UpdateProductPriceResponseDTO();  
         when(productMapper.toUpdateProductPriceResponseDTO(eq(product), any()))
             .thenReturn(response);
@@ -213,7 +204,7 @@ class ProductServiceUnitTest {
         service.updateProductPricePromotional(1L, requestBody);
 
         // assert
-        verify(repository).save(productCaptor.capture());
+        verify(productMapper).toUpdateProductPriceResponseDTO(productCaptor.capture(), any());
         Price result = productCaptor.getValue().getPrice();
 
         assertEquals(expectedCurrentPrice, result.getCurrentPrice());
@@ -234,9 +225,6 @@ class ProductServiceUnitTest {
 
         when(repository.findById(anyLong()))
             .thenReturn(Optional.of(product));
-
-        when(repository.save(eq(product)))
-            .thenReturn(product);
 
         when(productMapper.toUpdateProductPriceResponseDTO(eq(product), any()))
             .thenReturn(new UpdateProductPriceResponseDTO());
@@ -271,9 +259,6 @@ class ProductServiceUnitTest {
 
         when(repository.findById(anyLong()))
             .thenReturn(Optional.of(product));
-
-        when(repository.save(eq(product)))
-            .thenReturn(product);
 
         when(productMapper.toUpdateProductPriceResponseDTO(eq(product), any()))
             .thenReturn(new UpdateProductPriceResponseDTO());

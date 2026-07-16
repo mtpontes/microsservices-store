@@ -71,9 +71,6 @@ class CategoryServiceUnitTest {
         when(repository.findById(any()))
             .thenReturn(Optional.of(target));
 
-        when(repository.save(eq(target)))
-            .thenReturn(target);
-
         var response = new SimpleDataCategoryDTO(1L, newName);
         when(mapper.toSimpleDataCategoryDTO(eq(target)))
             .thenReturn(response);
@@ -86,7 +83,7 @@ class CategoryServiceUnitTest {
         verify(uniqueNameCategoryValidator)
             .validate(eq(requestBody.getName()));
 
-        verify(repository).save(categoryCaptor.capture());
+        verify(mapper).toSimpleDataCategoryDTO(categoryCaptor.capture());
         Category updated = categoryCaptor.getValue();
         assertEquals(requestBody.getName().toUpperCase(), updated.getName());
     }

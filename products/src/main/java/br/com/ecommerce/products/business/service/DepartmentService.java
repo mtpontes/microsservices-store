@@ -15,7 +15,7 @@ import br.com.ecommerce.products.api.dto.department.UpdateDepartmentoDTO;
 import br.com.ecommerce.products.api.mapper.CategoryMapper;
 import br.com.ecommerce.products.api.mapper.DepartmentMapper;
 import br.com.ecommerce.products.business.validator.UniqueNameDepartmentValidator;
-import br.com.ecommerce.products.infra.config.CacheName;
+import br.com.ecommerce.products.infra.constants.CacheName;
 import br.com.ecommerce.products.infra.entity.department.Department;
 import br.com.ecommerce.products.infra.exception.exceptions.DepartmentNotFoundException;
 import br.com.ecommerce.products.infra.repository.DepartmentRepository;
@@ -67,7 +67,7 @@ public class DepartmentService {
         return departmentRepository.findById(id)
             .map(department -> {
                 department.update(data.getName());
-                return departmentRepository.save(department);
+                return department;
             })
             .map(departmentMapper::toSimpleDataDepartmentDTO)
             .orElseThrow(DepartmentNotFoundException::new);

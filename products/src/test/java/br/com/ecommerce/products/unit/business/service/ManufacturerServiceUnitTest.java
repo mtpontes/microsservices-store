@@ -80,9 +80,6 @@ class ManufacturerServiceUnitTest {
         when(repositoryMock.findById(any()))
             .thenReturn(Optional.of(target));
 
-        when(repositoryMock.save(eq(target)))
-            .thenReturn(target);
-
         var response = new DataManufacturerDTO(
             null, newName, null, null, null, null);
         when(mapperMock.toDataManufacturerDTO(eq(target), any()))
@@ -96,7 +93,7 @@ class ManufacturerServiceUnitTest {
         verify(uniqueNameValidatorMock)
             .validate(eq(requestBody.getName()));
 
-        verify(repositoryMock).save(manufacturerCaptor.capture());
+        verify(mapperMock).toDataManufacturerDTO(manufacturerCaptor.capture(), any());
         Manufacturer updated = manufacturerCaptor.getValue();
         assertEquals(requestBody.getName().toUpperCase(), updated.getName());
     }

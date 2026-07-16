@@ -7,6 +7,70 @@ This is an old project that I created at the beginning of the year, and this rep
 ## System overview
 ![application-schema](/repo/readme/application.svg)
 
+```mermaid
+graph TD
+    classDef client fill:#eef,stroke:#333,stroke-width:2px;
+    classDef gateway fill:#bbf,stroke:#333,stroke-width:2px;
+    classDef service fill:#ddf,stroke:#333,stroke-width:1px;
+    classDef database fill:#dfd,stroke:#333,stroke-width:1px;
+    classDef broker fill:#fdb,stroke:#333,stroke-width:1px;
+
+    Client["Client (Browser/Postman)"]:::client
+    Gateway["API Gateway (Port 9092)"]:::gateway
+    Eureka["Eureka Server (Port 9091)"]:::service
+
+    subgraph SecurityZone ["Security & Authentication"]
+        AuthMS["auth-service (Port 9094)"]:::service
+        AccountsMS["accounts-service (Port 9093)"]:::service
+    end
+
+    subgraph DownstreamZone ["Downstream Microservices (Internal Network)"]
+        ProductsMS["products-service"]:::service
+        CartMS["cart-service"]:::service
+        OrdersMS["orders-service"]:::service
+        PaymentsMS["payments-service"]:::service
+    end
+
+    subgraph Datastores ["Databases & Cache"]
+        MySQL_Acc["MySQL (accounts_db)"]:::database
+        MySQL_Prod["MySQL (products_db)"]:::database
+        MySQL_Pay["MySQL (payments_db)"]:::database
+        MongoDB_Cart["MongoDB (cart_db)"]:::database
+        MongoDB_Ord["MongoDB (orders_db)"]:::database
+        Redis_Cache["Redis (Cache)"]:::database
+    end
+
+    Broker["RabbitMQ (Message Broker)"]:::broker
+
+    %% Discovery connections
+    Gateway -.-> Eureka
+    AuthMS -.-> Eureka
+    AccountsMS -.-> Eureka
+    ProductsMS -.-> Eureka
+    CartMS -.-> Eureka
+    OrdersMS -.-> Eureka
+    PaymentsMS -.-> Eureka
+
+    %% Flow connections
+    Client -->|HTTP Request| Gateway
+    Gateway -->|1. Validate Token| AuthMS
+    Gateway -->|2. Injects Headers & Forward| DownstreamZone
+    Gateway -->|Forward Public/Auth Requests| AccountsMS
+
+    AccountsMS --> MySQL_Acc
+    AuthMS --> MySQL_Acc
+    ProductsMS --> MySQL_Prod
+    ProductsMS --> Redis_Cache
+    CartMS --> MongoDB_Cart
+    OrdersMS --> MongoDB_Ord
+    PaymentsMS --> MySQL_Pay
+
+    %% Async communication
+    OrdersMS <-->|Events| Broker
+    PaymentsMS <-->|Events| Broker
+    ProductsMS <-->|Events| Broker
+```
+
 <details>
   <summary><h2>Details</h2></summary>
 
@@ -17,12 +81,17 @@ This is an old project that I created at the beginning of the year, and this rep
 - Main entry point of the application and load balancer.
 
 ### Common
-- An internal library that all microservices use to implement security features.
-- Most services rely on it to implement Spring Security logic without code repetition.
+- An internal library (`common-security`) that all microservices use to implement security features.
+- Most services rely on it to build the Spring Security context from sanitized HTTP headers (`X-auth-user-*`) injected by the API Gateway.
 - In addition to having it locally in the project, its package is also distributed via Github Packages, so even if it is not present locally, services will still be able to access the package.
 
+### Auth
+- Dedicated authentication and token validation service (`auth-service`).
+- Validates the token signature and structure, returning sanitized user details to the API Gateway.
+
 ### Accounts
-- Manages user accounts and authentication.
+- Manages user accounts and credentials.
+- Responsible for validating credentials and generating signed JWT tokens upon login.
 
 ### Products
 - Manages products.
@@ -75,20 +144,28 @@ To access it, run the containers and access the [documentation entry point](http
 > - The Accounts service is responsible for always creating a default administrator user, using the ADMIN_USERNAME and ADMIN_PASSWORD environment variables
 
 <details>
-  <summary><h3> Authentication and Authorization Flow</h3></summary>
+  <summary><h3> Authentication and Authorization Flow (Centralized Security - V3)</h3></summary>
 
-#### 1. User authenticates to the Accounts service:
-- Logs in.
-- API generates a JWT with user identification data: id, username and roles.
-- User receives the JWT token.
+#### 1. User Authentication:
+- The user authenticates against the Accounts service (`POST /accounts-ms/auth`).
+- If credentials are valid, the Accounts service signs and generates a JWT token with user identification data: ID, username, and role, using the secret signature key `${JWT_SECRET}`.
+- The user receives the JWT token.
 
-#### 2. Token Validation:
-- When calling any service on an endpoint that requires authorization, a security filter intercepts, captures the JWT token and decodes it.
-- With the decoded JWT, the service creates a representation of the user (UserDetailsImpl) in the security context, allowing the system to know who the logged-in user is and what permissions they have.
+#### 2. Request Interception and Sanitization (API Gateway):
+- The client sends requests with the JWT token in the `Authorization: Bearer <token>` header.
+- The API Gateway intercepts the request and removes any external `X-auth-user-*` headers to prevent header injection vulnerability.
+- If the endpoint is protected:
+  - The Gateway queries the dedicated `auth-service` (`GET /auth`), forwarding the `Authorization` header.
+  - If the token is invalid or missing, the Gateway aborts the request and returns an HTTP 401 Unauthorized response.
+  - If the token is valid, the `auth-service` decodes it, validates it, and returns the verified user data.
+  - The Gateway then injects custom headers: `X-auth-user-id`, `X-auth-user-username`, and `X-auth-user-role` containing the verified identity, and forwards the request downstream.
+- If the endpoint is public, the Gateway forwards the request. If an invalid token was present, it cleans the `Authorization` header first.
 
-#### 3. Integration with Spring Security:
-- The mapped user is persisted in the Spring Security context.
-- Spring Security then manages the user's permissions for the microservice routes.
+#### 3. Downstream Processing (Spring Security Context):
+- The request is forwarded to the target downstream microservice (e.g., `cart-service`, `orders-service`).
+- A security filter (`SecurityFilter` from the `common-security` library) intercepts the request.
+- Instead of decoding a JWT directly or knowing the signature secret `${JWT_SECRET}`, the filter reads the sanitized `X-auth-user-*` headers.
+- It recreates the user details and registers the user directly in the Spring Security context, ensuring stateless authorization with complete isolation of security secrets.
 
 </details>
 
@@ -282,7 +359,8 @@ The project is still under development, is currently using development settings.
 
 ### Security
 - [x] Implement Spring Security
-- [x] Each microservice should be able to decode the JWT token, eliminating the need for the Auth microservice
+- [x] Centralize token validation in API Gateway with a dedicated authentication service (`auth-service`)
+- [x] Protect downstream microservices by passing only verified identity headers (`X-auth-user-*`) and keeping JWT secret isolated
 <!-- - [ ] Implement OAuth2 with 2FA -->
 
 <!-- ### New services
